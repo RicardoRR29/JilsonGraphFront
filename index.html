@@ -15,53 +15,116 @@
           type="button"
           @click="() => {
             openModalNode = !openModalNode
-            if(openModalNode) {openModalEdge = false}
+            if(openModalNode) {
+              openModalRelation = false;
+              openModalEdge = false;
+            }
           }"
           class="btn-f btn-create-node"
         >
           + NÓ
+        </button>
+        <button
+          type="button"
+          @click="() => {
+            openModalEdge = !openModalEdge
+            if(openModalEdge) {
+              openModalRelation = false;
+              openModalNode = false;
+            }
+          }"
+          class="btn-f btn-create-node"
+        >
+          + Aresta
         </button>
 
         <button
           type="button"
           class="btn-f btn-create-edge"
           @click="() => {
-            openModalEdge = !openModalEdge
-            if(openModalEdge) {openModalNode = false}
+            openModalRelation = !openModalRelation
+            if(openModalRelation) {
+              openModalNode = false;
+              openModalEdge = false;
+            }
           }"
         >
-          + ARESTA
+          + Relação
         </button>
         <transition name="fade">
           <modal class="modal" v-show="openModalNode">
             <div class="modal-title"></div>
             <label for="nomeNode">
               Nome do Nó
-              <input type="text" />
+              <input type="text" v-model="nodeName" />
             </label>
-            <label for="nomeNode">
-              Nome do Nó
-              <input type="text" />
+            <div class="property" v-for="(property) in nodeProperties">
+              <label for="duration">Nome da propriedade:</label>
+              <input type="text" v-model="property.fieldName" required>
+              <label for="duration">Valor da propriedade:</label>
+              <input type="text" v-model="property.fieldValue" required>
+            </div>
+            <div class="btn-style">
+              <button @click="addNodeProperty">Adicionar propriedade</button>
+              <button @click="removeNodeProperty">Remover propriedade</button>
+              <button @click="sendNode">Enviar</button>
+            </div>
+          </modal>
+        </transition>
+        <transition name="fade">
+          <modal class="modal" v-show="openModalRelation">
+            <div class="modal-title"></div>
+            <label for="relation-name">
+              Nome da Relação:
+              <input v-model="relationName" type="text" id="relation-name" class="relation-name" name="relation-name" />
             </label>
-            <label for="nomeNode">
-              Nome do Nó
-              <input type="text" />
+            <label for="first-node-name">
+              Nome do primeiro nó:
+              <input v-model="firstNodeName" type="text" id="first-node-name" class="first-node-name" name="first-node-name" />
             </label>
-            <label for="nomeNode">
-              Nome do Nó
-              <input type="text" />
+            <label for="second-node-name">
+              Nome do segundo nó:
+              <input v-model="secondNodeName" type="text" id="second-node-name" class="second-node-name" name="second-node-name" />
             </label>
+            <!-- <div class="property" v-for="(property) in edgeProperties">
+              <label for="duration">Nome da propriedade:</label>
+              <input type="text" v-model="property.fieldName" required>
+              <label for="duration">Valor da propriedade:</label>
+              <input type="text" v-model="property.fieldValue" required>
+            </div> -->
+            <div class="btn-style">
+              <!-- <button @click="addEdgeProperty">Adicionar propriedade</button>
+              <button @click="removeEdgeProperty">Remover propriedade</button> -->
+              <button @click="sendEdge">Enviar</button>
+            </div>
           </modal>
         </transition>
         <transition name="fade">
           <modal class="modal" v-show="openModalEdge">
             <div class="modal-title"></div>
-            <label for="nomeNode">
-              Nome da Relação
-              <input type="text" />
+            <label for="relation-name">
+              Nome da Relação:
+              <input v-model="edgeName" type="text" id="relation-name" class="relation-name" name="relation-name" />
             </label>
-            <input type="text" />
-            <input type="text" />
+            <label for="first-node-name">
+              Id do primeiro nó:
+              <input v-model="firstNodeId" type="text" id="first-node-name" class="first-node-name" name="first-node-name" />
+            </label>
+            <label for="second-node-name">
+              Id do segundo nó:
+              <input v-model="secondNodeId" type="text" id="second-node-name" class="second-node-name" name="second-node-name" />
+            </label>
+            <div class="property" v-for="(property) in edgeProperties">
+              <label for="duration">Nome da propriedade:</label>
+              <input type="text" v-model="property.fieldName" required>
+              <label for="duration">Valor da propriedade:</label>
+              <input type="text" v-model="property.fieldValue" required>
+            </div>
+            <div class="btn-style">
+              <button @click="addEdgeProperty">Adicionar propriedade</button>
+              <button @click="removeEdgeProperty">Remover propriedade</button>
+              <button @click="sendEdge">Enviar</button>
+            </div>
           </modal>
         </transition>
       </div>
@@ -88,7 +151,29 @@
         el: "#app",
         data: {
           openModalNode: false,
+          openModalRelation: false,
           openModalEdge: false,
+
+          // Nó
+          nodeName: '',
+          nodeProperties: [{
+            fieldName: '',
+            fieldValue: '',
+          }],
+
+          // Aresta
+          relationName: '',
+          firstNodeName: '',
+          secondNodeName: '',
+          directed: false,
+
+          edgeName: '',
+          firstNodeId: '',
+          secondNodeId: '',
+          edgeProperties: [{
+            fieldName: '',
+            fieldValue: '',
+          }],
         },
         methods: {
           createEdge(nome) {
@@ -109,17 +194,56 @@
               properties: properties,
             });
           },
-          postEdge({ edgeName, firstNodeName, secondNodeName, edgeInfos }) {
-            api.post(`/edge/${edgeName}`, {
+
+          postEdge({ relationName, firstNodeName, secondNodeName }) {
+            api.post(`/edge/${relationName}`, {
               firstNodeName,
               secondNodeName,
-              edgeInfos,
+              directed: true,
             });
           },
           getNodeInfos(nodeName) {
             api.get("/node/all/Pessoa");
           },
+
+          addNodeProperty() {
+            this.nodeProperties.push({
+              fieldName: '',
+              fieldValue: '',
+            });
+          },
+
+          removeNodeProperty() {
+            if (this.nodeProperties.length - 1 > 0) {
+              this.nodeProperties.splice(this.nodeProperties.length - 1,1);
+            }
+          },
+
+          sendNode() {
+            console.log(this.nodeName);
+            for (const property of this.nodeProperties) {
+              console.log(property);
+            }
+          },
+
+          addEdgeProperty() {
+            this.edgeProperties.push({
+              fieldName: '',
+              fieldValue: '',
+            });
+          },
+
+          removeEdgeProperty() {
+            if (this.edgeProperties.length - 1 > 0) {
+              this.edgeProperties.splice(this.edgeProperties.length - 1,1);
+            }
+          },
+
+          sendRelation() {
+            postEdge({ relationName: this.relationName, firstNodeName: this.firstNodeName, secondNodeName: this.secondNodeName });
+          },
         },
+
         mounted() {
           api.get("node/all/Pessoa");
 
