@@ -40,15 +40,16 @@ new Vue({
         type: "edge",
       });
     },
-    createNode(nome) {
-      api.post("/doc", {
+    async createNode(nome) {
+      console.log(nome);
+      await api.post("/doc", {
         name: nome,
         type: "node",
       });
     },
-    postObjInNode({ nodeName, properties }) {
-      api.post("/node", {
-        nodeName,
+    async postObjInNode({ nodeName, properties }) {
+      await api.post("/node", {
+        nodeName: nodeName,
         properties: properties,
       });
     },
@@ -77,12 +78,29 @@ new Vue({
       }
     },
 
-    sendNode() {
-      console.log(this.nodeName);
-      this.createNode(this.nodeName);
+    async handleAddNode(nodeName) {
+      let data = {};
       for (const property of this.nodeProperties) {
-        console.log(property);
+        data[property.fieldName] = property.fieldValue;
       }
+
+      await this.postObjInNode({nodeName: nodeName, properties: data});
+    },
+
+    async getAllNodes() {
+      const response = await api.get('node').then((response) => response);
+      return response.data.content;
+    },
+
+    async sendNode() {
+      console.log(this.nodeName);
+      const nodes = await this.getAllNodes();
+      if (nodes.indexOf(`${this.nodeName}.json`) > -1) {
+        await this.handleAddNode(this.nodeName);
+        return;
+      }
+      await this.createNode(this.nodeName);
+      await this.handleAddNode(this.nodeName);
     },
 
     addEdgeProperty() {
