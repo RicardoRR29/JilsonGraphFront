@@ -103,7 +103,7 @@
               type: "node",
             });
           },
-          postObjInNode(nodeName, properties) {
+          postObjInNode({ nodeName, properties }) {
             api.post("/node", {
               nodeName,
               properties: properties,
@@ -117,12 +117,10 @@
             });
           },
           getNodeInfos(nodeName) {
-            api.get("/node/all/Pessoa");
+            api.get(`/node/all/${nodeName}`);
           },
         },
         mounted() {
-          api.get("node/all/Pessoa");
-
           var chartDom = document.getElementById("main");
           var myChart = echarts.init(chartDom, "dark");
           var option;
