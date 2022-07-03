@@ -39,18 +39,16 @@
               Nome do Nó
               <input type="text" />
             </label>
-            <label for="nomeNode">
-              Nome do Nó
-              <input type="text" />
-            </label>
-            <label for="nomeNode">
-              Nome do Nó
-              <input type="text" />
-            </label>
-            <label for="nomeNode">
-              Nome do Nó
-              <input type="text" />
-            </label>
+            <div class="property" v-for="(property) in nodeProperties">
+              <label for="duration">Nome da propriedade:</label>
+              <input type="text" v-model="property.fieldName" required>
+              <label for="duration">Valor da propriedade:</label>
+              <input type="text" v-model="property.fieldValue" required>
+            </div>
+            <div class="btn-style">
+              <button @click="addNodeProperty">Adicionar propriedade</button>
+              <button @click="removeNodeProperty">Remover propriedade</button>
+            </div>
           </modal>
         </transition>
         <transition name="fade">
@@ -89,6 +87,10 @@
         data: {
           openModalNode: false,
           openModalEdge: false,
+          nodeProperties: [{
+            fieldName: '',
+            fieldVaue: '',
+          }],
         },
         methods: {
           createEdge(nome) {
@@ -119,6 +121,19 @@
           getNodeInfos(nodeName) {
             api.get("/node/all/Pessoa");
           },
+
+          addNodeProperty() {
+            this.nodeProperties.push({
+              fieldName: '',
+              fieldVaue: '',
+            });
+          },
+
+          removeNodeProperty() {
+            if (this.nodeProperties.length - 1 > 0) {
+              this.nodeProperties.splice(this.nodeProperties.length - 1,1);
+            }
+          }
         },
         mounted() {
           api.get("node/all/Pessoa");
