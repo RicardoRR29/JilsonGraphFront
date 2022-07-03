@@ -1,0 +1,83 @@
+* {
+  margin: 0;
+}
+#main {
+  height: 100vh;
+}
+
+body {
+  font-family: sans-serif;
+}
+span,
+p,
+label,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: sans-serif;
+}
+.btn-f {
+  display: flex;
+  background-color: rgb(73, 146, 255);
+  border: none;
+  width: fit-content;
+  height: fit-content;
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+  z-index: 100;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.btn-f:hover {
+  filter: brightness(1.15);
+}
+
+.btn-f:active {
+  transform: scale(0.95);
+}
+
+.btn-f.btn-create-node {
+  bottom: 80px;
+}
+
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 15px;
+  padding: 15px 50px;
+  box-shadow: 3px 3px 10px #aaa;
+  width: fit-content;
+  height: fit-content;
+  z-index: 200;
+  background-color: #fff;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+}
+.modal label {
+  display: flex;
+  flex-direction: column;
+  margin: 5px 0;
+}
+.modal label input {
+  margin-top: 3px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transform: translate(-50%, -50%), scale(1);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
