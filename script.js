@@ -157,25 +157,28 @@ new Vue({
     },
 
     async populateGraph() {
-      const response = await api.get(`/edge/teste`);
+
+      const response  = await api.get(`/edge/node-info/Distancia`);
+
 
       let xAxis = 200;
       let yAxis = 100;
       let control = 1;
       for (const data of response.data.content.data) {
         const names = this.graphData.map((item) => item.name);
-        if (names.indexOf(data.firstNodeId) < 0) {
+        if (names.indexOf(data.firstNode.nome) < 0) {
           if (control % 2 > 0) {
             this.graphData.push({
-              name: data.firstNodeId,
-              x: xAxis,
-              y: yAxis,
+
+              name: data.firstNode.nome,
+              x: Math.floor(Math.random() * 100),
+              y: Math.floor(Math.random() * 50),
             });
           } else {
             this.graphData.push({
-              name: data.firstNodeId,
-              x: -xAxis,
-              y: yAxis,
+              name: data.firstNode.nome,
+              x: Math.floor(Math.random() * 100),
+              y: Math.floor(Math.random() * 50),
             });
           }
         }
@@ -186,18 +189,21 @@ new Vue({
 
       for (const data of response.data.content.data) {
         const names = this.graphData.map((item) => item.name);
-        if (names.indexOf(data.secondNodeId) < 0) {
+        if (names.indexOf(data.secondNode.nome) < 0) {
           if (control % 2 > 0) {
             this.graphData.push({
-              name: data.secondNodeId,
-              x: xAxis,
-              y: yAxis,
+
+
+              name: data.secondNode.nome,
+              x: Math.floor(Math.random() * 100),
+              y: Math.floor(Math.random() * 50), 
             });
           } else {
             this.graphData.push({
-              name: data.secondNodeId,
-              x: -xAxis,
-              y: yAxis,
+              name: data.secondNode.nome,
+              x: Math.floor(Math.random() * 100),
+              y: Math.floor(Math.random() * 50),
+
             });
           }
         }
@@ -208,8 +214,8 @@ new Vue({
 
       for (const data of response.data.content.data) {
         this.graphLabels.push({
-          source: data.firstNodeId,
-          target: data.secondNodeId,
+          source: data.firstNode.nome,
+          target: data.secondNode.nome,
           // value: "teste",
           label: {
             show: false,
