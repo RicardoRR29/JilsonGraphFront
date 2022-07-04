@@ -87,11 +87,11 @@ new Vue({
         data[property.fieldName] = property.fieldValue;
       }
 
-      await this.postObjInNode({nodeName: nodeName, properties: data});
+      await this.postObjInNode({ nodeName: nodeName, properties: data });
     },
 
     async getAllNodes() {
-      const response = await api.get('node').then((response) => response);
+      const response = await api.get("node").then((response) => response);
       return response.data.content;
     },
 
@@ -153,13 +153,15 @@ new Vue({
         firstNodeId: this.firstNodeId,
         secondNodeId: this.secondNodeId,
         edgeInfos: data,
-      })
+      });
     },
 
     async populateGraph() {
+
       const response  = await api.get(`/edge/node-info/Distancia`);
 
-      let xAxis = 600;
+
+      let xAxis = 200;
       let yAxis = 100;
       let control = 1;
       for (const data of response.data.content.data) {
@@ -167,6 +169,7 @@ new Vue({
         if (names.indexOf(data.firstNode.nome) < 0) {
           if (control % 2 > 0) {
             this.graphData.push({
+
               name: data.firstNode.nome,
               x: Math.floor(Math.random() * 100),
               y: Math.floor(Math.random() * 50),
@@ -183,12 +186,14 @@ new Vue({
         control++;
         yAxis *= 1.5;
       }
-      
+
       for (const data of response.data.content.data) {
         const names = this.graphData.map((item) => item.name);
         if (names.indexOf(data.secondNode.nome) < 0) {
           if (control % 2 > 0) {
             this.graphData.push({
+
+
               name: data.secondNode.nome,
               x: Math.floor(Math.random() * 100),
               y: Math.floor(Math.random() * 50), 
@@ -198,10 +203,10 @@ new Vue({
               name: data.secondNode.nome,
               x: Math.floor(Math.random() * 100),
               y: Math.floor(Math.random() * 50),
+
             });
           }
         }
-
 
         control++;
         yAxis *= 1.5;
@@ -218,11 +223,82 @@ new Vue({
             //   return obj.data.value;
             // },
           },
+          data: [
+            {
+              name: "Node 1",
+              x: 100,
+              y: 100,
+            },
+            {
+              name: "Node 2",
+              x: 100,
+              y: 150,
+            },
+            {
+              name: "Node 3",
+              x: 150,
+              y: 150,
+            },
+            {
+              name: "Node 4",
+              x: 150,
+              y: 100,
+            },
+          ],
+          // links: [],
+          links: [
+            {
+              source: "Node 3",
+              target: "Node 1",
+              value: "teste",
+              label: {
+                show: true,
+                formatter: (obj) => {
+                  return obj.data.value;
+                },
+              },
+              lineStyle: {
+                width: 2,
+                curveness: 0.2,
+              },
+            },
+            {
+              source: "Node 2",
+              target: "Node 1",
+              label: {
+                formatter: "{b}",
+              },
+              lineStyle: {
+                curveness: 0.2,
+              },
+            },
+            {
+              source: "Node 1",
+              target: "Node 3",
+            },
+            {
+              source: "Node 2",
+              target: "Node 3",
+            },
+            {
+              source: "Node 2",
+              target: "Node 4",
+            },
+            {
+              source: "Node 1",
+              target: "Node 4",
+            },
+            {
+              source: "Node 1",
+              target: "Node 3",
+              value: "aaaa",
+            },
+          ],
           lineStyle: {
             width: 2,
             curveness: 0.2,
           },
-        },)
+        });
       }
     },
   },
@@ -261,96 +337,13 @@ new Vue({
               x: item.x,
               y: item.y,
             })),
-            links: this.graphLabels.map(item => ({
+            links: this.graphLabels.map((item) => ({
               source: item.source,
               target: item.target,
-              // value: "teste",
               label: item.label,
               lineStyle: item.lineStyle,
             })),
 
-            // data: [
-            //   {
-            //     name: "Node 1",
-            //     x: 600,
-            //     y: 100,
-            //   },
-            //   {
-            //     name: "Node 2",
-            //     x: -600,
-            //     y: 250,
-            //   },
-            //   {
-            //     name: "Node 3",
-            //     x: 600,
-            //     y: 350,
-            //   },
-            //   {
-            //     name: "Node 4",
-            //     x: -600,
-            //     y: 450,
-            //   },
-            //   {
-            //     name: "Node 5",
-            //     x: 600,
-            //     y: 550,
-            //   },
-  
-            //   {
-            //     name: "Node 6",
-            //     x: -600,
-            //     y: 650,
-            //   },
-            // ],
-            // links: [],
-            // links: [
-            //   {
-            //     source: "Node 3",
-            //     target: "Node 1",
-            //     value: "teste",
-            //     label: {
-            //       show: true,
-            //       formatter: (obj) => {
-            //         return obj.data.value;
-            //       },
-            //     },
-            //     lineStyle: {
-            //       width: 2,
-            //       curveness: 0.2,
-            //     },
-            //   },
-            //   {
-            //     source: "Node 2",
-            //     target: "Node 1",
-            //     label: {
-            //       formatter: "{b}",
-            //     },
-            //     lineStyle: {
-            //       curveness: 0.2,
-            //     },
-            //   },
-            //   {
-            //     source: "Node 1",
-            //     target: "Node 3",
-            //   },
-            //   {
-            //     source: "Node 2",
-            //     target: "Node 3",
-            //   },
-            //   {
-            //     source: "Node 2",
-            //     target: "Node 4",
-            //   },
-            //   {
-            //     source: "Node 1",
-            //     target: "Node 4",
-            //   },
-            //   {
-            //     source: "Node 1",
-            //     target: "Node 3",
-            //     value: "aaaa",
-            //   },
-            // ],
             lineStyle: {
               opacity: 0.9,
               width: 2,
@@ -359,7 +352,7 @@ new Vue({
           },
         ],
       };
-  
+
       option && myChart.setOption(option);
     }
   },
