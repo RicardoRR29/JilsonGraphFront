@@ -52,11 +52,18 @@
           + Relação
         </button>
       </div>
+      <div class="buttons pos-left">
+        <button type="button" class="btn-f btn-create-node">BFS</button>
+        <button type="button" class="btn-f btn-create-node">DFS</button>
+
+        <button type="button" class="btn-f btn-create-edge">Dijkstra</button>
+        <button type="button" class="btn-f btn-create-edge">Prim</button>
+      </div>
       <transition name="fade">
         <modal class="modal" v-show="openModalNode">
           <div class="modal-title"></div>
           <label for="nomeNode">
-            Nome do Nó
+            <h3>Nome do Nó:</h3>
             <input type="text" v-model="nodeName" />
           </label>
           <div class="property" v-for="(property) in nodeProperties">
@@ -76,7 +83,7 @@
         <modal class="modal" v-show="openModalRelation">
           <div class="modal-title"></div>
           <label for="relation-name">
-            Nome da Relação:
+            <h3>Nome da Relação:</h3>
             <input
               v-model="relationName"
               type="text"
@@ -122,7 +129,7 @@
         <modal class="modal" v-show="openModalEdge">
           <div class="modal-title"></div>
           <label for="relation-name">
-            Nome da Relação:
+            <h3>Nome da Aresta:</h3>
             <input
               v-model="edgeName"
               type="text"

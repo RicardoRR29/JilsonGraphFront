@@ -159,7 +159,7 @@ new Vue({
     async populateGraph() {
       const response = await api.get(`/edge/teste`);
 
-      let xAxis = 600;
+      let xAxis = 200;
       let yAxis = 100;
       let control = 1;
       for (const data of response.data.content.data) {
@@ -334,93 +334,10 @@ new Vue({
             links: this.graphLabels.map((item) => ({
               source: item.source,
               target: item.target,
-              // value: "teste",
               label: item.label,
               lineStyle: item.lineStyle,
             })),
 
-            // data: [
-            //   {
-            //     name: "Node 1",
-            //     x: 600,
-            //     y: 100,
-            //   },
-            //   {
-            //     name: "Node 2",
-            //     x: -600,
-            //     y: 250,
-            //   },
-            //   {
-            //     name: "Node 3",
-            //     x: 600,
-            //     y: 350,
-            //   },
-            //   {
-            //     name: "Node 4",
-            //     x: -600,
-            //     y: 450,
-            //   },
-            //   {
-            //     name: "Node 5",
-            //     x: 600,
-            //     y: 550,
-            //   },
-
-            //   {
-            //     name: "Node 6",
-            //     x: -600,
-            //     y: 650,
-            //   },
-            // ],
-            // links: [],
-            // links: [
-            //   {
-            //     source: "Node 3",
-            //     target: "Node 1",
-            //     value: "teste",
-            //     label: {
-            //       show: true,
-            //       formatter: (obj) => {
-            //         return obj.data.value;
-            //       },
-            //     },
-            //     lineStyle: {
-            //       width: 2,
-            //       curveness: 0.2,
-            //     },
-            //   },
-            //   {
-            //     source: "Node 2",
-            //     target: "Node 1",
-            //     label: {
-            //       formatter: "{b}",
-            //     },
-            //     lineStyle: {
-            //       curveness: 0.2,
-            //     },
-            //   },
-            //   {
-            //     source: "Node 1",
-            //     target: "Node 3",
-            //   },
-            //   {
-            //     source: "Node 2",
-            //     target: "Node 3",
-            //   },
-            //   {
-            //     source: "Node 2",
-            //     target: "Node 4",
-            //   },
-            //   {
-            //     source: "Node 1",
-            //     target: "Node 4",
-            //   },
-            //   {
-            //     source: "Node 1",
-            //     target: "Node 3",
-            //     value: "aaaa",
-            //   },
-            // ],
             lineStyle: {
               opacity: 0.9,
               width: 2,
