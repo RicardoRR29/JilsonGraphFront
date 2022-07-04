@@ -83,11 +83,11 @@ new Vue({
         data[property.fieldName] = property.fieldValue;
       }
 
-      await this.postObjInNode({nodeName: nodeName, properties: data});
+      await this.postObjInNode({ nodeName: nodeName, properties: data });
     },
 
     async getAllNodes() {
-      const response = await api.get('node').then((response) => response);
+      const response = await api.get("node").then((response) => response);
       return response.data.content;
     },
 
@@ -150,8 +150,8 @@ new Vue({
         firstNodeId: this.firstNodeId,
         secondNodeId: this.secondNodeId,
         edgeInfos: data,
-      })
-    }
+      });
+    },
   },
 
   mounted() {
@@ -188,18 +188,18 @@ new Vue({
             },
             {
               name: "Node 2",
-              x: 250,
-              y: 200,
+              x: 100,
+              y: 150,
             },
             {
               name: "Node 3",
-              x: 300,
-              y: 300,
+              x: 150,
+              y: 150,
             },
             {
               name: "Node 4",
-              x: 400,
-              y: 400,
+              x: 150,
+              y: 100,
             },
           ],
           // links: [],
