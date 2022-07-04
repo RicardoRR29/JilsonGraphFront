@@ -32,7 +32,11 @@ new Vue({
         fieldValue: "",
       },
     ],
+    graphData: [],
+    graphLabels: [],
+    dataReady: false,
   },
+  // Gráfico
   methods: {
     async createEdge(nome) {
       await api.post("/doc", {
@@ -145,121 +149,218 @@ new Vue({
         data[property.fieldName] = property.fieldValue;
       }
 
-      console.log(this.firstNodeId, this.secondNodeId);
       await api.post(`/edge/${this.edgeName}`, {
         firstNodeId: this.firstNodeId,
         secondNodeId: this.secondNodeId,
         edgeInfos: data,
       })
-    }
+    },
+
+    async populateGraph() {
+      const response  = await api.get(`/edge/teste`);
+
+      let xAxis = 600;
+      let yAxis = 100;
+      let control = 1;
+      for (const data of response.data.content.data) {
+        const names = this.graphData.map((item) => item.name);
+        if (names.indexOf(data.firstNodeId) < 0) {
+          if (control % 2 > 0) {
+            this.graphData.push({
+              name: data.firstNodeId,
+              x: xAxis,
+              y: yAxis, 
+            });
+          } else {
+            this.graphData.push({
+              name: data.firstNodeId,
+              x: -xAxis,
+              y: yAxis, 
+            });
+          }
+        }
+
+        control++;
+        yAxis *= 1.5;
+      }
+      
+      for (const data of response.data.content.data) {
+        const names = this.graphData.map((item) => item.name);
+        if (names.indexOf(data.secondNodeId) < 0) {
+          if (control % 2 > 0) {
+            this.graphData.push({
+              name: data.secondNodeId,
+              x: xAxis,
+              y: yAxis, 
+            });
+          } else {
+            this.graphData.push({
+              name: data.secondNodeId,
+              x: -xAxis,
+              y: yAxis, 
+            });
+          }
+        }
+
+
+        control++;
+        yAxis *= 1.5;
+      }
+
+      for (const data of response.data.content.data) {
+        this.graphLabels.push({
+          source: data.firstNodeId,
+          target: data.secondNodeId,
+          // value: "teste",
+          label: {
+            show: false,
+            // formatter: (obj) => {
+            //   return obj.data.value;
+            // },
+          },
+          lineStyle: {
+            width: 2,
+            curveness: 0.2,
+          },
+        },)
+      }
+    },
   },
 
-  mounted() {
-    this.getAllEdge();
-    var chartDom = document.getElementById("main");
-    var myChart = echarts.init(chartDom, "dark");
-    var option;
-    option = {
-      title: {
-        text: "Basic Graph",
-      },
-      tooltip: {},
-      animationDurationUpdate: 1500,
-      animationEasingUpdate: "quinticInOut",
-      series: [
-        {
-          type: "graph",
-          layout: "none",
-          symbolSize: 50,
-          roam: true,
-          label: {
-            show: true,
-          },
-          edgeSymbol: ["circle", "arrow"],
-          edgeSymbolSize: [4, 10],
-          edgeLabel: {
-            fontSize: 20,
-          },
-          data: [
-            {
-              name: "Node 1",
-              x: 100,
-              y: 100,
-            },
-            {
-              name: "Node 2",
-              x: 250,
-              y: 200,
-            },
-            {
-              name: "Node 3",
-              x: 300,
-              y: 300,
-            },
-            {
-              name: "Node 4",
-              x: 400,
-              y: 400,
-            },
-          ],
-          // links: [],
-          links: [
-            {
-              source: "Node 3",
-              target: "Node 1",
-              value: "teste",
-              label: {
-                show: true,
-                formatter: (obj) => {
-                  return obj.data.value;
-                },
-              },
-              lineStyle: {
-                width: 2,
-                curveness: 0.2,
-              },
-            },
-            {
-              source: "Node 2",
-              target: "Node 1",
-              label: {
-                formatter: "{b}",
-              },
-              lineStyle: {
-                curveness: 0.2,
-              },
-            },
-            {
-              source: "Node 1",
-              target: "Node 3",
-            },
-            {
-              source: "Node 2",
-              target: "Node 3",
-            },
-            {
-              source: "Node 2",
-              target: "Node 4",
-            },
-            {
-              source: "Node 1",
-              target: "Node 4",
-            },
-            {
-              source: "Node 1",
-              target: "Node 3",
-              value: "aaaa",
-            },
-          ],
-          lineStyle: {
-            opacity: 0.9,
-            width: 2,
-            curveness: 0,
-          },
+  async mounted() {
+    await this.populateGraph();
+    this.dataReady = true;
+    if (this.dataReady) {
+      console.log(this.graphLabels);
+      var chartDom = document.getElementById("main");
+      var myChart = echarts.init(chartDom, "dark");
+      var option;
+      option = {
+        title: {
+          text: "Basic Graph",
         },
-      ],
-    };
+        tooltip: {},
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: "quinticInOut",
+        series: [
+          {
+            type: "graph",
+            layout: "none",
+            symbolSize: 50,
+            roam: true,
+            label: {
+              show: true,
+            },
+            edgeSymbol: ["circle", "arrow"],
+            edgeSymbolSize: [4, 10],
+            edgeLabel: {
+              fontSize: 20,
+            },
+            data: this.graphData.map((item) => ({
+              name: item.name,
+              x: item.x,
+              y: item.y,
+            })),
+            links: this.graphLabels.map(item => ({
+              source: item.source,
+              target: item.target,
+              // value: "teste",
+              label: item.label,
+              lineStyle: item.lineStyle,
+            })),
 
-    option && myChart.setOption(option);
+            // data: [
+            //   {
+            //     name: "Node 1",
+            //     x: 600,
+            //     y: 100,
+            //   },
+            //   {
+            //     name: "Node 2",
+            //     x: -600,
+            //     y: 250,
+            //   },
+            //   {
+            //     name: "Node 3",
+            //     x: 600,
+            //     y: 350,
+            //   },
+            //   {
+            //     name: "Node 4",
+            //     x: -600,
+            //     y: 450,
+            //   },
+            //   {
+            //     name: "Node 5",
+            //     x: 600,
+            //     y: 550,
+            //   },
+  
+            //   {
+            //     name: "Node 6",
+            //     x: -600,
+            //     y: 650,
+            //   },
+            // ],
+            // links: [],
+            // links: [
+            //   {
+            //     source: "Node 3",
+            //     target: "Node 1",
+            //     value: "teste",
+            //     label: {
+            //       show: true,
+            //       formatter: (obj) => {
+            //         return obj.data.value;
+            //       },
+            //     },
+            //     lineStyle: {
+            //       width: 2,
+            //       curveness: 0.2,
+            //     },
+            //   },
+            //   {
+            //     source: "Node 2",
+            //     target: "Node 1",
+            //     label: {
+            //       formatter: "{b}",
+            //     },
+            //     lineStyle: {
+            //       curveness: 0.2,
+            //     },
+            //   },
+            //   {
+            //     source: "Node 1",
+            //     target: "Node 3",
+            //   },
+            //   {
+            //     source: "Node 2",
+            //     target: "Node 3",
+            //   },
+            //   {
+            //     source: "Node 2",
+            //     target: "Node 4",
+            //   },
+            //   {
+            //     source: "Node 1",
+            //     target: "Node 4",
+            //   },
+            //   {
+            //     source: "Node 1",
+            //     target: "Node 3",
+            //     value: "aaaa",
+            //   },
+            // ],
+            lineStyle: {
+              opacity: 0.9,
+              width: 2,
+              curveness: 0,
+            },
+          },
+        ],
+      };
+  
+      option && myChart.setOption(option);
+    }
   },
 });
