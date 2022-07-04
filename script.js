@@ -34,14 +34,13 @@ new Vue({
     ],
   },
   methods: {
-    createEdge(nome) {
-      api.post("/doc", {
+    async createEdge(nome) {
+      await api.post("/doc", {
         name: nome,
         type: "edge",
       });
     },
     async createNode(nome) {
-      console.log(nome);
       await api.post("/doc", {
         name: nome,
         type: "node",
@@ -54,8 +53,8 @@ new Vue({
       });
     },
 
-    postEdge({ relationName, firstNodeName, secondNodeName }) {
-      api.post(`/edge/${relationName}`, {
+    async postEdge({ relationName, firstNodeName, secondNodeName }) {
+      await api.post(`/edge/`, {
         firstNodeName,
         secondNodeName,
         directed: true,
@@ -93,7 +92,6 @@ new Vue({
     },
 
     async sendNode() {
-      console.log(this.nodeName);
       const nodes = await this.getAllNodes();
       if (nodes.indexOf(`${this.nodeName}.json`) > -1) {
         await this.handleAddNode(this.nodeName);
@@ -115,18 +113,45 @@ new Vue({
         this.edgeProperties.splice(this.edgeProperties.length - 1, 1);
       }
     },
-    getAllEdge() {
-      api.get("edge").then((response) => {
-        console.log(response);
-      });
+    async getAllEdge() {
+      const response = await api.get("edge");
+
+      return response.data.content;
     },
-    sendRelation() {
-      postEdge({
+
+    async sendRelation() {
+      const edges = await this.getAllEdge();
+
+      if (edges.indexOf(`${this.relationName}.json`) > -1) {
+        await this.postEdge({
+          relationName: this.relationName,
+          firstNodeName: this.firstNodeName,
+          secondNodeName: this.secondNodeName,
+        });
+        return;
+      }
+
+      await this.createEdge(this.relationName);
+      await this.postEdge({
         relationName: this.relationName,
         firstNodeName: this.firstNodeName,
         secondNodeName: this.secondNodeName,
       });
     },
+
+    async sendEdge() {
+      let data = {};
+      for (const property of this.edgeProperties) {
+        data[property.fieldName] = property.fieldValue;
+      }
+
+      console.log(this.firstNodeId, this.secondNodeId);
+      await api.post(`/edge/${this.edgeName}`, {
+        firstNodeId: this.firstNodeId,
+        secondNodeId: this.secondNodeId,
+        edgeInfos: data,
+      })
+    }
   },
 
   mounted() {
@@ -158,30 +183,30 @@ new Vue({
           data: [
             {
               name: "Node 1",
+              x: 100,
+              y: 100,
+            },
+            {
+              name: "Node 2",
+              x: 250,
+              y: 200,
+            },
+            {
+              name: "Node 3",
               x: 300,
               y: 300,
             },
             {
-              name: "Node 2",
-              x: 800,
-              y: 300,
-            },
-            {
-              name: "Node 3",
-              x: 550,
-              y: 100,
-            },
-            {
               name: "Node 4",
-              x: 550,
-              y: 500,
+              x: 400,
+              y: 400,
             },
           ],
           // links: [],
           links: [
             {
-              source: 2,
-              target: 1,
+              source: "Node 3",
+              target: "Node 1",
               value: "teste",
               label: {
                 show: true,
@@ -190,7 +215,7 @@ new Vue({
                 },
               },
               lineStyle: {
-                width: 5,
+                width: 2,
                 curveness: 0.2,
               },
             },
