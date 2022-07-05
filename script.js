@@ -1,5 +1,5 @@
 const api = axios.create({
-  baseURL: "https://jilsongraph.herokuapp.com/",
+  baseURL: "http://localhost:3001/",
 });
 new Vue({
   el: "#app",
@@ -7,6 +7,7 @@ new Vue({
     openModalNode: false,
     openModalRelation: false,
     openModalEdge: false,
+    openModalAlg: false,
 
     // Nó
     nodeName: "",
@@ -35,6 +36,10 @@ new Vue({
     graphData: [],
     graphLabels: [],
     dataReady: false,
+
+    // Algoritmos
+    algRelationName: "",
+    isDFS: false,
   },
   // Gráfico
   methods: {
@@ -157,59 +162,31 @@ new Vue({
     },
 
     async populateGraph() {
-
       const response  = await api.get(`/edge/node-info/Distancia`);
 
-
-      let xAxis = 200;
-      let yAxis = 100;
-      let control = 1;
       for (const data of response.data.content.data) {
         const names = this.graphData.map((item) => item.name);
         if (names.indexOf(data.firstNode.nome) < 0) {
-          if (control % 2 > 0) {
-            this.graphData.push({
+          this.graphData.push({
 
-              name: data.firstNode.nome,
-              x: Math.floor(Math.random() * 100),
-              y: Math.floor(Math.random() * 50),
-            });
-          } else {
-            this.graphData.push({
-              name: data.firstNode.nome,
-              x: Math.floor(Math.random() * 100),
-              y: Math.floor(Math.random() * 50),
-            });
-          }
+            name: data.firstNode.nome,
+            x: Math.floor(Math.random() * 100),
+            y: Math.floor(Math.random() * 50),
+          });
         }
-
-        control++;
-        yAxis *= 1.5;
       }
 
       for (const data of response.data.content.data) {
         const names = this.graphData.map((item) => item.name);
         if (names.indexOf(data.secondNode.nome) < 0) {
-          if (control % 2 > 0) {
-            this.graphData.push({
+          this.graphData.push({
 
 
-              name: data.secondNode.nome,
-              x: Math.floor(Math.random() * 100),
-              y: Math.floor(Math.random() * 50), 
-            });
-          } else {
-            this.graphData.push({
-              name: data.secondNode.nome,
-              x: Math.floor(Math.random() * 100),
-              y: Math.floor(Math.random() * 50),
-
-            });
-          }
+            name: data.secondNode.nome,
+            x: Math.floor(Math.random() * 100),
+            y: Math.floor(Math.random() * 50), 
+          });
         }
-
-        control++;
-        yAxis *= 1.5;
       }
 
       for (const data of response.data.content.data) {
@@ -223,137 +200,127 @@ new Vue({
             //   return obj.data.value;
             // },
           },
-          data: [
-            {
-              name: "Node 1",
-              x: 100,
-              y: 100,
-            },
-            {
-              name: "Node 2",
-              x: 100,
-              y: 150,
-            },
-            {
-              name: "Node 3",
-              x: 150,
-              y: 150,
-            },
-            {
-              name: "Node 4",
-              x: 150,
-              y: 100,
-            },
-          ],
-          // links: [],
-          links: [
-            {
-              source: "Node 3",
-              target: "Node 1",
-              value: "teste",
-              label: {
-                show: true,
-                formatter: (obj) => {
-                  return obj.data.value;
-                },
-              },
-              lineStyle: {
-                width: 2,
-                curveness: 0.2,
-              },
-            },
-            {
-              source: "Node 2",
-              target: "Node 1",
-              label: {
-                formatter: "{b}",
-              },
-              lineStyle: {
-                curveness: 0.2,
-              },
-            },
-            {
-              source: "Node 1",
-              target: "Node 3",
-            },
-            {
-              source: "Node 2",
-              target: "Node 3",
-            },
-            {
-              source: "Node 2",
-              target: "Node 4",
-            },
-            {
-              source: "Node 1",
-              target: "Node 4",
-            },
-            {
-              source: "Node 1",
-              target: "Node 3",
-              value: "aaaa",
-            },
-          ],
           lineStyle: {
             width: 2,
             curveness: 0.2,
           },
         });
       }
+
+      this.init();
     },
+
+    init(clear) {
+      this.dataReady = true;
+      if (this.dataReady) {
+        var chartDom = document.getElementById("main");
+        var myChart = echarts.init(chartDom, "dark");
+        if (clear) {
+          myChart.clear();
+          var myChart = echarts.init(chartDom, "dark");
+        }
+        var option;
+        option = {
+          title: {
+            text: "Basic Graph",
+          },
+          tooltip: {},
+          animationDurationUpdate: 1500,
+          animationEasingUpdate: "quinticInOut",
+          series: [
+            {
+              type: "graph",
+              layout: "none",
+              symbolSize: 50,
+              roam: true,
+              label: {
+                show: true,
+              },
+              edgeSymbol: ["circle", "arrow"],
+              edgeSymbolSize: [4, 10],
+              edgeLabel: {
+                fontSize: 20,
+              },
+              data: this.graphData.map((item) => ({
+                name: item.name,
+                x: item.x,
+                y: item.y,
+              })),
+              links: this.graphLabels.map((item) => ({
+                source: item.source,
+                target: item.target,
+                label: item.label,
+                lineStyle: item.lineStyle,
+              })),
+  
+              lineStyle: {
+                opacity: 0.9,
+                width: 2,
+                curveness: 0,
+              },
+            },
+          ],
+        };
+  
+        option && myChart.setOption(option);
+      }
+    },
+
+    async populateDFS() {
+      if (this.isDFS) {
+        const response  = await api.get(`/alg/dfs/${this.algRelationName}`);
+        for (const data of response.data.content) {
+          const names = this.graphData.map((item) => item.name);
+          if (names.indexOf(data.nodeInfo.nome) < 0) {
+            this.graphData.push({
+  
+              name: data.nodeInfo.nome,
+              x: Math.floor(Math.random() * 100),
+              y: Math.floor(Math.random() * 50),
+            });
+          }
+        }
+  
+        // for (const data of response.data.content) {
+        //   const names = this.graphData.map((item) => item.name);
+        //   if (data.pred.id !== null) {
+        //     if (names.indexOf(data.pred.nome) < 0) {
+        //       this.graphData.push({
+        //         name: data.pred.predInfo.nome,
+        //         x: Math.floor(Math.random() * 100),
+        //         y: Math.floor(Math.random() * 50), 
+        //       });
+        //     }
+        //   }
+        // }
+  
+        for (const data of response.data.content) {
+          if (data.pred.id !== null) {
+            this.graphLabels.push({
+              source: data.nodeInfo.nome,
+              target: data.pred.predInfo.nome,
+              // value: "teste",
+              label: {
+                show: false,
+                // formatter: (obj) => {
+                //   return obj.data.value;
+                // },
+              },
+              lineStyle: {
+                width: 2,
+                curveness: 0.2,
+              },
+            });
+          }
+        }
+        this.init(true);
+
+        console.log(this.graphData);
+      }
+    }
   },
 
   async mounted() {
-    await this.populateGraph();
-    this.dataReady = true;
-    if (this.dataReady) {
-      console.log(this.graphLabels);
-      var chartDom = document.getElementById("main");
-      var myChart = echarts.init(chartDom, "dark");
-      var option;
-      option = {
-        title: {
-          text: "Basic Graph",
-        },
-        tooltip: {},
-        animationDurationUpdate: 1500,
-        animationEasingUpdate: "quinticInOut",
-        series: [
-          {
-            type: "graph",
-            layout: "none",
-            symbolSize: 50,
-            roam: true,
-            label: {
-              show: true,
-            },
-            edgeSymbol: ["circle", "arrow"],
-            edgeSymbolSize: [4, 10],
-            edgeLabel: {
-              fontSize: 20,
-            },
-            data: this.graphData.map((item) => ({
-              name: item.name,
-              x: item.x,
-              y: item.y,
-            })),
-            links: this.graphLabels.map((item) => ({
-              source: item.source,
-              target: item.target,
-              label: item.label,
-              lineStyle: item.lineStyle,
-            })),
-
-            lineStyle: {
-              opacity: 0.9,
-              width: 2,
-              curveness: 0,
-            },
-          },
-        ],
-      };
-
-      option && myChart.setOption(option);
-    }
+   await this.populateGraph();
   },
 });
