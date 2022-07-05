@@ -1,5 +1,5 @@
 const api = axios.create({
-  baseURL: "http://localhost:3001/",
+  baseURL: "https://jilsongraph.heroku.app",
 });
 new Vue({
   el: "#app",
@@ -162,13 +162,12 @@ new Vue({
     },
 
     async populateGraph() {
-      const response  = await api.get(`/edge/node-info/Distancia`);
+      const response = await api.get(`/edge/node-info/Distancia`);
 
       for (const data of response.data.content.data) {
         const names = this.graphData.map((item) => item.name);
         if (names.indexOf(data.firstNode.nome) < 0) {
           this.graphData.push({
-
             name: data.firstNode.nome,
             x: Math.floor(Math.random() * 100),
             y: Math.floor(Math.random() * 50),
@@ -180,11 +179,9 @@ new Vue({
         const names = this.graphData.map((item) => item.name);
         if (names.indexOf(data.secondNode.nome) < 0) {
           this.graphData.push({
-
-
             name: data.secondNode.nome,
             x: Math.floor(Math.random() * 100),
-            y: Math.floor(Math.random() * 50), 
+            y: Math.floor(Math.random() * 50),
           });
         }
       }
@@ -252,7 +249,7 @@ new Vue({
                 label: item.label,
                 lineStyle: item.lineStyle,
               })),
-  
+
               lineStyle: {
                 opacity: 0.9,
                 width: 2,
@@ -261,26 +258,25 @@ new Vue({
             },
           ],
         };
-  
+
         option && myChart.setOption(option);
       }
     },
 
     async populateDFS() {
       if (this.isDFS) {
-        const response  = await api.get(`/alg/dfs/${this.algRelationName}`);
+        const response = await api.get(`/alg/dfs/${this.algRelationName}`);
         for (const data of response.data.content) {
           const names = this.graphData.map((item) => item.name);
           if (names.indexOf(data.nodeInfo.nome) < 0) {
             this.graphData.push({
-  
               name: data.nodeInfo.nome,
               x: Math.floor(Math.random() * 100),
               y: Math.floor(Math.random() * 50),
             });
           }
         }
-  
+
         // for (const data of response.data.content) {
         //   const names = this.graphData.map((item) => item.name);
         //   if (data.pred.id !== null) {
@@ -288,12 +284,12 @@ new Vue({
         //       this.graphData.push({
         //         name: data.pred.predInfo.nome,
         //         x: Math.floor(Math.random() * 100),
-        //         y: Math.floor(Math.random() * 50), 
+        //         y: Math.floor(Math.random() * 50),
         //       });
         //     }
         //   }
         // }
-  
+
         for (const data of response.data.content) {
           if (data.pred.id !== null) {
             this.graphLabels.push({
@@ -317,10 +313,10 @@ new Vue({
 
         console.log(this.graphData);
       }
-    }
+    },
   },
 
   async mounted() {
-   await this.populateGraph();
+    await this.populateGraph();
   },
 });
