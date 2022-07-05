@@ -64,6 +64,7 @@ new Vue({
 
     async postEdge({ relationName, firstNodeName, secondNodeName }) {
       await api.post(`/edge/`, {
+        edgeName: relationName,
         firstNodeName,
         secondNodeName,
         directed: true,
