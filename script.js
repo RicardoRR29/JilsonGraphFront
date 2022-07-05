@@ -1,5 +1,5 @@
 const api = axios.create({
-  baseURL: "https://jilsongraph.herokuapp.com/",
+  baseURL: "https://jilsongraph.herokuapp.com",
 });
 new Vue({
   el: "#app",
